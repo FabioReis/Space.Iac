@@ -2,6 +2,19 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "space-env": {
+      "type": "string",
+      "defaultValue": "dev",
+      "allowedValues": [
+        "dev",
+        "cond",
+        "qa",
+        "prod"
+      ],
+      "metadata": {
+        "description": "Describes which environment to deploy"
+      }
+    },
     "hostingPlanName": {
       "type": "string",
       "minLength": 1
@@ -34,10 +47,103 @@
       "metadata": {
         "description": "Describes plan's instance count"
       }
+    },
+    "space-serverAdminLogin": {
+      "type": "string",
+      "minLength": 1
+    },
+    "space-serverAdminLoginPassword": {
+      "type": "securestring"
+    },
+    "space-dbName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "space-dbCollation": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "SQL_Latin1_General_CP1_CI_AS"
+    },
+    "space-dbEdition": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    },
+    "space-dbRequestedServiceObjectiveName": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [
+        "Basic",
+        "S0",
+        "S1",
+        "S2",
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "metadata": {
+        "description": "Describes the performance level for Edition"
+      }
+    },
+    "space-cacheName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "space-cacheSKUName": {
+      "type": "string",
+      "allowedValues": [
+        "Basic",
+        "Standard"
+      ],
+      "defaultValue": "Standard"
+    },
+    "space-cacheSKUFamily": {
+      "type": "string",
+      "allowedValues": [
+        "C"
+      ],
+      "defaultValue": "C"
+    },
+    "space-cacheSKUCapacity": {
+      "type": "int",
+      "allowedValues": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "defaultValue": 0
+    },
+    "space-cacheRedisVersion": {
+      "type": "string",
+      "allowedValues": [
+        "2.8"
+      ],
+      "defaultValue": "2.8"
+    },
+    "spaceStorageType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Premium_LRS"
+      ]
     }
   },
   "variables": {
-    "webSiteName": "[concat('webSite', uniqueString(resourceGroup().id))]"
+    "webSiteName": "[concat('webSite', uniqueString(resourceGroup().id))]",
+    "space-serverName": "[concat('space-server', uniqueString(resourceGroup().id))]",
+    "spaceStorageName": "[concat('spaceStorage', uniqueString(resourceGroup().id))]"
   },
   "resources": [
     {
@@ -71,7 +177,23 @@
       "properties": {
         "name": "[variables('webSiteName')]",
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
-      }
+      },
+      "resources": [
+        {
+          "name": "appsettings",
+          "type": "config",
+          "apiVersion": "2015-08-01",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/sites', variables('webSiteName'))]"
+          ],
+          "tags": {
+            "displayName": "spaceSettings"
+          },
+          "properties": {
+            "key1": "[concat('http://edp-wpa-', parameters('space-env'))]"
+          }
+        }
+      ]
     },
     {
       "apiVersion": "2014-04-01",
@@ -290,6 +412,85 @@
       "properties": {
         "applicationId": "[variables('webSiteName')]"
       }
+    },
+    {
+      "name": "[variables('space-serverName')]",
+      "type": "Microsoft.Sql/servers",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2014-04-01-preview",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "space-server"
+      },
+      "properties": {
+        "administratorLogin": "[parameters('space-serverAdminLogin')]",
+        "administratorLoginPassword": "[parameters('space-serverAdminLoginPassword')]"
+      },
+      "resources": [
+        {
+          "name": "AllowAllWindowsAzureIps",
+          "type": "firewallrules",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', variables('space-serverName'))]"
+          ],
+          "properties": {
+            "startIpAddress": "0.0.0.0",
+            "endIpAddress": "0.0.0.0"
+          }
+        },
+        {
+          "name": "[parameters('space-dbName')]",
+          "type": "databases",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', variables('space-serverName'))]"
+          ],
+          "tags": {
+            "displayName": "space-db"
+          },
+          "properties": {
+            "collation": "[parameters('space-dbCollation')]",
+            "edition": "[parameters('space-dbEdition')]",
+            "maxSizeBytes": "1073741824",
+            "requestedServiceObjectiveName": "[parameters('space-dbRequestedServiceObjectiveName')]"
+          }
+        }
+      ]
+    },
+    {
+      "name": "[parameters('space-cacheName')]",
+      "type": "Microsoft.Cache/Redis",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-04-01",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "space-cache"
+      },
+      "properties": {
+        "sku": {
+          "name": "[parameters('space-cacheSKUName')]",
+          "family": "[parameters('space-cacheSKUFamily')]",
+          "capacity": "[parameters('space-cacheSKUCapacity')]"
+        },
+        "redisVersion": "[parameters('space-cacheRedisVersion')]"
+      }
+    },
+    {
+      "name": "[variables('spaceStorageName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-01-01",
+      "sku": {
+        "name": "[parameters('spaceStorageType')]"
+      },
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "spaceStorage"
+      },
+      "kind": "Storage"
     }
   ]
 }
