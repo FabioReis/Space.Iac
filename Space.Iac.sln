@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2010
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "Space.Iac", "Space.Iac\Space.Iac.deployproj", "{425A63FA-7986-426A-897F-B72E281CCC89}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{425A63FA-7986-426A-897F-B72E281CCC89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{425A63FA-7986-426A-897F-B72E281CCC89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{425A63FA-7986-426A-897F-B72E281CCC89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{425A63FA-7986-426A-897F-B72E281CCC89}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {44CFA308-D3E1-4351-9B9E-4E1B50D44712}
+	EndGlobalSection
+EndGlobal
