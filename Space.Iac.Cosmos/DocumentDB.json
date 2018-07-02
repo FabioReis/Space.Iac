@@ -42,16 +42,17 @@
     }
   },
   "variables": {
-    "offerType": "Standard"
+    "offerType": "Standard",
+    "databaseAccountName": "[concat(parameters('databaseAccountName'), '-', resourceGroup().name)]"
   },
   "resources": [
     {
       "apiVersion": "2015-04-08",
       "type": "Microsoft.DocumentDB/databaseAccounts",
-      "name": "[parameters('databaseAccountName')]",
+      "name": "[variables('databaseAccountName')]",
       "location": "[resourceGroup().location]",
       "properties": {
-        "name": "[parameters('databaseAccountName')]",
+        "name": "[variables('databaseAccountName')]",
         "databaseAccountOfferType": "[variables('offerType')]",
         "consistencyPolicy": {
           "defaultConsistencyLevel": "[parameters('consistencyLevel')]",
