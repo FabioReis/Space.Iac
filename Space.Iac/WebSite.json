@@ -138,6 +138,44 @@
       "metadata": {
         "description": "The name of the function app that you wish to create."
       }
+    },
+    "cosmosAccountName": {
+      "type": "string",
+      "minLength": 3,
+      "metadata": {
+        "description": "The DocumentDB database account name."
+      }
+    },
+    "consistencyLevel": {
+      "type": "string",
+      "allowedValues": [
+        "Eventual",
+        "Strong",
+        "Session",
+        "BoundedStaleness"
+      ],
+      "defaultValue": "Session",
+      "metadata": {
+        "description": "The DocumentDB default consistency level for this account."
+      }
+    },
+    "maxStalenessPrefix": {
+      "type": "int",
+      "minValue": 10,
+      "maxValue": 1000,
+      "defaultValue": 10,
+      "metadata": {
+        "description": "When consistencyLevel is set to BoundedStaleness, then this value is required, otherwise it can be ignored."
+      }
+    },
+    "maxIntervalInSeconds": {
+      "type": "int",
+      "minValue": 5,
+      "maxValue": 600,
+      "defaultValue": 5,
+      "metadata": {
+        "description": "When consistencyLevel is set to BoundedStaleness, then this value is required, otherwise it can be ignored."
+      }
     }
   },
   "variables": {
@@ -148,7 +186,9 @@
     "spaceStorageName": "[replace(concat('spacestorage', variables('resourceGroupName')), '-', '')]",
     "spaceCacheName": "[concat(parameters('space-cacheName'), '-', variables('resourceGroupName'))]",
     "spaceDbName": "[concat(parameters('space-dbName'), '-', variables('resourceGroupName'))]",
-    "functionAppName": "[concat(parameters('functionAppName'), '-',  variables('resourceGroupName'))]"
+    "functionAppName": "[concat(parameters('functionAppName'), '-',  variables('resourceGroupName'))]",
+    "offerType": "Standard",
+    "cosmosAccountName": "[toLower(concat(parameters('cosmosAccountName'), '-', toLower(resourceGroup().name)))]"
   },
   "resources": [
     {
@@ -536,6 +576,21 @@
               "value": "6.5.0"
             }
           ]
+        }
+      }
+    },
+    {
+      "apiVersion": "2015-04-08",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "name": "[variables('cosmosAccountName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "name": "[variables('cosmosAccountName')]",
+        "databaseAccountOfferType": "[variables('offerType')]",
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "[parameters('consistencyLevel')]",
+          "maxStalenessPrefix": "[parameters('maxStalenessPrefix')]",
+          "maxIntervalInSeconds": "[parameters('maxIntervalInSeconds')]"
         }
       }
     }

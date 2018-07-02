@@ -22,6 +22,9 @@
     },
     "functionAppName": {
       "value": "space-iac-func"
+    },
+    "cosmosAccountName": {
+      "value": "space"
     }
   }
 }
