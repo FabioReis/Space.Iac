@@ -3,7 +3,22 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "hostingPlanName": {
-      "value": null
+      "value": "space-iac"
+    },
+    "space-site-name": {
+      "value": "space-iac"
+    },
+    "space-serverAdminLogin": {
+      "value": "admin"
+    },
+    "space-serverAdminLoginPassword": {
+      "value": "Sp@ace159753"
+    },
+    "space-dbName": {
+      "value": "space-iac"
+    },
+    "space-cacheName": {
+      "value": "space-iac"
     }
   }
 }

@@ -135,12 +135,13 @@
     }
   },
   "variables": {
-    "hostingPlanName": "[concat(parameters('hostingPlanName'), '-', resourceGroup().name)]",
-    "webSiteName": "[concat(parameters('space-site-name'), '-', resourceGroup().name)]",
-    "spaceServerName": "[concat('space-server', '-', resourceGroup().name)]",
-    "spaceStorageName": "[concat('spaceStorage', '-', resourceGroup().name)]",
-    "spaceCacheName": "[concat(parameters('space-cacheName'), '-', resourceGroup().name)]",
-    "spaceDbName": "[concat(parameters('space-dbName'), '-', resourceGroup().name)]"
+    "resourceGroupName": "[toLower(resourceGroup().name)]",
+    "hostingPlanName": "[concat(parameters('hostingPlanName'), '-', variables('resourceGroupName'))]",
+    "webSiteName": "[concat(parameters('space-site-name'), '-', variables('resourceGroupName'))]",
+    "spaceServerName": "[concat('space-server', '-', variables('resourceGroupName'))]",
+    "spaceStorageName": "[replace(concat('spacestorage', variables('resourceGroupName')), '-', '')]",
+    "spaceCacheName": "[concat(parameters('space-cacheName'), '-', variables('resourceGroupName'))]",
+    "spaceDbName": "[concat(parameters('space-dbName'), '-', variables('resourceGroupName'))]"
   },
   "resources": [
     {
@@ -177,7 +178,7 @@
       },
       "resources": [
         {
-          "name": "[concat(variables('webSiteName'), '-', 'settings', '-', resourceGroup().name)]",
+          "name": "appsettings",
           "type": "config",
           "apiVersion": "2015-08-01",
           "dependsOn": [
@@ -187,14 +188,14 @@
             "displayName": "spaceSettings"
           },
           "properties": {
-            "edp-wpa-Url": "[concat('http://edp-wpa-', '-', resourceGroup().name, '/')]"
+            "edp-wpa-Url": "[concat('http://edp-wpa-', variables('resourceGroupName'), '/')]"
           }
         }
       ]
     },
     {
       "apiVersion": "2014-04-01",
-      "name": "[variables('hostingPlanName')]",
+      "name": "[concat(variables('hostingPlanName'), '-autoscale')]",
       "type": "Microsoft.Insights/autoscalesettings",
       "location": "[resourceGroup().location]",
       "tags": {
@@ -254,13 +255,13 @@
           }
         ],
         "enabled": false,
-        "name": "[concat(variables('hostingPlanName'), '-', resourceGroup().name)]",
+        "name": "[concat(variables('hostingPlanName'), '-autoscale')]",
         "targetResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('hostingPlanName'))]"
       }
     },
     {
       "apiVersion": "2016-03-01",
-      "name": "[concat('ServerErrors ', '-', variables('webSiteName'))]",
+      "name": "[concat('ServerErrors-', variables('webSiteName'))]",
       "type": "microsoft.insights/alertrules",
       "location": "[resourceGroup().location]",
       "dependsOn": [
@@ -294,7 +295,7 @@
     },
     {
       "apiVersion": "2016-03-01",
-      "name": "[concat('ForbiddenRequests', '-', variables('webSiteName'))]",
+      "name": "[concat('ForbiddenRequests-', variables('webSiteName'))]",
       "type": "microsoft.insights/alertrules",
       "location": "[resourceGroup().location]",
       "dependsOn": [
@@ -328,7 +329,7 @@
     },
     {
       "apiVersion": "2016-03-01",
-      "name": "[concat('CPUHigh ', '-', variables('hostingPlanName'))]",
+      "name": "[concat('CPUHigh-', variables('hostingPlanName'))]",
       "type": "microsoft.insights/alertrules",
       "location": "[resourceGroup().location]",
       "dependsOn": [
@@ -362,7 +363,7 @@
     },
     {
       "apiVersion": "2016-03-01",
-      "name": "[concat('LongHttpQueue ', variables('hostingPlanName'))]",
+      "name": "[concat('LongHttpQueue-', variables('hostingPlanName'))]",
       "type": "microsoft.insights/alertrules",
       "location": "[resourceGroup().location]",
       "dependsOn": [

@@ -43,7 +43,7 @@
   },
   "variables": {
     "offerType": "Standard",
-    "databaseAccountName": "[concat(parameters('databaseAccountName'), '-', resourceGroup().name)]"
+    "databaseAccountName": "[concat(parameters('databaseAccountName'), '-', toLower(resourceGroup().name))]"
   },
   "resources": [
     {

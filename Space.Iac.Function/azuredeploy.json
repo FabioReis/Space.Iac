@@ -41,9 +41,10 @@
     }
   },
   "variables": {
-    "functionAppName": "[concat(parameters('appName'), '-'),  resourceGroup().name]",
-    "hostingPlanName": "[concat(parameters('hostingPlanName'), '-'),  resourceGroup().name]",
-    "storageAccountName": "[concat(parameters('storageName'), '-'),  resourceGroup().name]",
+    "resourceGroupName": "[toLower(resourceGroup().name)]",
+    "functionAppName": "[concat(parameters('appName'), '-'),  variables('resourceGroupName')]",
+    "hostingPlanName": "[concat(parameters('hostingPlanName'), '-'),  variables('resourceGroupName')]",
+    "storageAccountName": "[concat(parameters('storageName'), '-'),  variables('resourceGroupName')]",
     "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
   },
   "resources": [
