@@ -9,7 +9,7 @@
       "value": "space-iac"
     },
     "space-serverAdminLogin": {
-      "value": "admin"
+      "value": "Space-1820-Adm"
     },
     "space-serverAdminLoginPassword": {
       "value": "Sp@ace159753"
@@ -19,6 +19,9 @@
     },
     "space-cacheName": {
       "value": "space-iac"
+    },
+    "functionAppName": {
+      "value": "space-iac-func"
     }
   }
 }
